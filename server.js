@@ -1,17 +1,14 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
-import path from 'path'
-import { fileURLToPath } from 'url'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const app = express()
 app.use(cors())
 app.use(express.json())
 
-// Serve static files from Next.js export
-app.use(express.static(path.join(__dirname, 'out')))
+const html = `<!DOCTYPE html><html><head><title>CORTEX</title><style>body{background:#0a0a0a;color:#0f0;font-family:monospace;padding:40px}h1{font-size:48px}</style></head><body><h1>CORTEX Terminal</h1><p>TEE: LIVE | EigenCompute: Connected</p></body></html>`
+
+app.get('/', (_req, res) => res.send(html))
 
 // API Routes - Return mock data
 app.get('/api/health', (_req, res) => {
@@ -135,11 +132,6 @@ app.get('/api/attestations', (_req, res) => {
     { timestamp: new Date().toISOString(), type: 'Virtuals', agent: 'AIXBT', action: 'job_complete', hash: '0xabc123', sig: 'kms:xyz', chain: 'Base', value: 0.0019 },
     { timestamp: new Date().toISOString(), type: 'PoAA', agent: 'agent_0x3f2a', action: 'yield_opt', hash: '0xdef456', sig: 'kms:abc', chain: 'Gnosis' },
   ])
-})
-
-// Fallback to index.html for SPA
-app.get('*', (_req, res) => {
-  res.sendFile(path.join(__dirname, 'out', 'index.html'))
 })
 
 const PORT = parseInt(process.env.PORT || '3000', 10)
