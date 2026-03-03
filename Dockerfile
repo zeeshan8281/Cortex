@@ -26,15 +26,17 @@ RUN npm run build
 FROM node:20-alpine
 WORKDIR /app
 
-# Copy built output and production deps
+# Copy package files and install deps
 COPY package*.json ./
 RUN npm ci --omit=dev
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
+
+# Copy built output
+COPY --from=builder /app/out ./out
+COPY server.js ./
 
 # EigenCompute TEE requires root — do NOT add a USER directive
 ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
