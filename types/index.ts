@@ -62,7 +62,7 @@ export interface DeFAIProtocol {
 
 export interface Attestation {
   timestamp: string
-  type: 'PoAA' | 'Virtuals' | 'Griffin' | 'Orbit' | 'Wayfinder'
+  type: 'PoAA' | 'Virtuals' | 'Griffin' | 'Orbit' | 'Wayfinder' | 'EigenDA'
   agent: string
   action: string
   hash: string
@@ -108,6 +108,7 @@ export interface TopBarData {
   virtualPrice: number
   aai50: number
   aai50Change: number
+  blobRef?: string  // latest EigenDA commitment (hex), used for DA chip in TopBar
 }
 
 export interface TuringSpread {

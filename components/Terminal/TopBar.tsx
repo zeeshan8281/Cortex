@@ -34,10 +34,33 @@ export default function TopBar({ data, dataStatus, onStatusClick }: {
       </span>
 
       {/* TEE Status */}
-      <span style={{ marginRight: 16, display: 'flex', alignItems: 'center', gap: 5 }}>
+      <span style={{ marginRight: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
         <span style={{ width: 6, height: 6, borderRadius: '50%', background: teeColor, display: 'inline-block', animation: 'pulse 2s infinite' }} />
         <span style={{ color: teeColor, fontSize: 10 }}>TEE:{data.teeStatus}</span>
       </span>
+
+      {/* EigenDA blob chip */}
+      {data.blobRef && (
+        <a
+          href={`https://blobs.eigenda.xyz/blobs/${data.blobRef}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            marginRight: 16,
+            fontSize: 9,
+            fontWeight: 700,
+            letterSpacing: '0.06em',
+            padding: '1px 6px',
+            background: 'rgba(138,43,226,0.15)',
+            color: '#b06fef',
+            textDecoration: 'none',
+            flexShrink: 0,
+          }}
+          title={`EigenDA blob: ${data.blobRef}`}
+        >
+          DA:{data.blobRef.replace(/^mock:/, '').slice(0, 8)}
+        </a>
+      )}
 
       <span style={{ color: 'var(--border-bright)', marginRight: 16 }}>│</span>
 

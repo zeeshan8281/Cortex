@@ -2,11 +2,13 @@ import { fetchPoAACompletions } from '@/lib/sources/olas'
 import { mockAttestations } from '@/lib/mock'
 import type { Attestation } from '@/types'
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+
 export const dynamic = 'force-dynamic'
 
 // Simulated agent names / actions for mock stream
 const MOCK_AGENTS = ['Griffin TEA', 'Orbit banker', 'AIXBT', 'Wayfinder', 'LUNA']
-const MOCK_TYPES: Attestation['type'][] = ['PoAA', 'Virtuals', 'Griffin', 'Orbit', 'Wayfinder']
+const MOCK_TYPES: Attestation['type'][] = ['PoAA', 'Virtuals', 'Griffin', 'Orbit', 'Wayfinder', 'EigenDA']
 const MOCK_CHAINS = ['Base', 'Gnosis', 'Ethereum', 'Arbitrum']
 const MOCK_ACTIONS = [
   'yield_opt', 'trade:ETH/USDC', 'task_complete', 'rebalance:Aave',
@@ -75,8 +77,34 @@ export async function GET() {
 
       const interval = setInterval(tick, 3000 + Math.random() * 3000)
 
+      // Periodically emit EigenDA blob-confirmed events (every ~5 min)
+      // Fetches /api/snapshot to get the latest commitment
+      const eigenDAInterval = setInterval(async () => {
+        try {
+          const res = await fetch(`${APP_URL}/api/snapshot`, { cache: 'no-store', signal: AbortSignal.timeout(5000) })
+          if (!res.ok) return
+          const blob = await res.json()
+          if (!blob?.commitment) return
+          const commitment: string = blob.commitment
+          send({
+            timestamp: new Date().toISOString().slice(11, 19),
+            type:      'EigenDA',
+            agent:     'CORTEX_snapshot',
+            action:    'blob_confirmed',
+            hash:      commitment.replace(/^mock:/, '').slice(0, 8),
+            sig:       'kms:eigenda',
+            chain:     'Ethereum',
+          })
+        } catch {
+          // Proxy unreachable — skip this tick
+        }
+      }, 5 * 60_000)
+
       // Cleanup if client disconnects
-      return () => clearInterval(interval)
+      return () => {
+        clearInterval(interval)
+        clearInterval(eigenDAInterval)
+      }
     },
   })
 

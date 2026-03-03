@@ -153,6 +153,16 @@ export async function GET() {
       return `${count} models available`
     }),
 
+    check('EigenDA proxy', null, async () => {
+      const proxyUrl = process.env.EIGENDA_PROXY_URL ?? 'http://localhost:4242'
+      const res = await fetch(`${proxyUrl}/health`, {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(3000),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      return `proxy reachable at ${proxyUrl}`
+    }),
+
   ])
 
   const live  = results.filter(r => r.mode === 'LIVE').length

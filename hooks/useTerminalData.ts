@@ -29,6 +29,11 @@ interface X402Response {
   flows: X402Flow[]; total: number; trend7d: number; largest: number
 }
 
+interface SnapshotResponse {
+  commitment: string
+  postedAt: string
+}
+
 export function useTerminalData() {
   const news    = usePolling<NewsItem[]>('/api/news', 180_000, [])
   const prices  = usePolling<PricesResponse | null>('/api/prices',  30_000, null)
@@ -38,20 +43,29 @@ export function useTerminalData() {
   const ars     = usePolling<ARSAgent[]>('/api/ars',               120_000, mockARS)
   const x402    = usePolling<X402Response | null>('/api/x402',     30_000, null)
   const tokens  = usePolling<TokenWatch[]>('/api/tokens',              30_000, mockTokens)
-  const network = usePolling<NetworkHealth | null>('/api/network',     20_000, null)
-  const history = usePolling<AAI50DataPoint[]>('/api/history',         600_000, mockAAI50History)
-  const sseAtts = useAttestationStream(8)
+  const network   = usePolling<NetworkHealth | null>('/api/network',         20_000, null)
+  const history   = usePolling<AAI50DataPoint[]>('/api/history',             600_000, mockAAI50History)
+  const snapshot  = usePolling<SnapshotResponse | null>('/api/snapshot',     300_000, null)
+  const sseAtts   = useAttestationStream(8)
+
+  const teeStatus = useMemo<TopBarData['teeStatus']>(() => {
+    // EIGENCOMPUTE_ATTESTED is injected by EigenCompute runtime as a public env var
+    if (process.env.NEXT_PUBLIC_EIGENCOMPUTE_ATTESTED === 'true') return 'LIVE'
+    if (snapshot.data) return 'DEGRADED'  // proxy reachable but not in TEE
+    return 'DOWN'
+  }, [snapshot.data])
 
   const topBar = useMemo<TopBarData>(() => ({
-    teeStatus:   mockTopBar.teeStatus,
+    teeStatus,
     totalAgents: agents.data?.topBar.totalAgents ?? agdp.data?.totalAgents ?? mockTopBar.totalAgents,
-    aGDP:        agdp.data?.agdpM    ?? mockTopBar.aGDP,
+    aGDP:        agdp.data?.agdpM      ?? mockTopBar.aGDP,
     aGDPChange:  agdp.data?.agdpChange ?? mockTopBar.aGDPChange,
-    ethPrice:    prices.data?.eth    ?? mockTopBar.ethPrice,
-    virtualPrice:prices.data?.virtual ?? mockTopBar.virtualPrice,
+    ethPrice:    prices.data?.eth      ?? mockTopBar.ethPrice,
+    virtualPrice:prices.data?.virtual  ?? mockTopBar.virtualPrice,
     aai50:       agents.data?.topBar.aai50       ?? mockTopBar.aai50,
     aai50Change: agents.data?.topBar.aai50Change ?? mockTopBar.aai50Change,
-  }), [prices.data, agents.data, agdp.data])
+    blobRef:     snapshot.data?.commitment ?? undefined,
+  }), [teeStatus, prices.data, agents.data, agdp.data, snapshot.data])
 
   const attestations: Attestation[] = sseAtts.length > 0 ? sseAtts : mockAttestations
 

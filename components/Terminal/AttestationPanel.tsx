@@ -9,6 +9,7 @@ const typeColor: Record<Attestation['type'], string> = {
   Griffin:   'var(--cyan)',
   Orbit:     'var(--green)',
   Wayfinder: 'var(--amber)',
+  EigenDA:   '#b06fef',
 }
 
 export default function AttestationPanel({ attestations }: { attestations: Attestation[] }) {
