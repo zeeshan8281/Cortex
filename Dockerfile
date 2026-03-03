@@ -1,13 +1,8 @@
 # ============================================================
 # Dockerfile for EigenCompute deployment
 # ============================================================
-# EigenCompute runs containers in Intel TDX TEE enclaves.
-# Requirements:
-#   - Target: linux/amd64
-#   - Must run as root (TEE requirement — no USER directive)
-# ============================================================
-
-FROM node:20-alpine
+FROM --platform=linux/amd64 node:20-alpine
+USER root
 WORKDIR /app
 
 COPY package*.json ./
