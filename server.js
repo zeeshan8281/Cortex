@@ -11,6 +11,10 @@ const html = `<!DOCTYPE html><html><head><title>CORTEX</title><style>body{backgr
 app.get('/', (_req, res) => res.send(html))
 
 // API Routes - Return mock data
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() })
+})
+
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
