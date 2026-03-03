@@ -19,6 +19,7 @@ COPY hooks/ ./hooks/
 COPY lib/ ./lib/
 COPY types/ ./types/
 COPY next.config.ts ./
+COPY public/ ./public/
 RUN npm run build
 
 # --- Production stage ---
