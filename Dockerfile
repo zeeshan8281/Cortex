@@ -6,6 +6,8 @@ COPY package.json package-lock.json* ./
 RUN npm ci
 
 COPY . .
+# NEXT_STANDALONE=true tells next.config.ts to use output:'standalone' for this Docker build
+ENV NEXT_STANDALONE=true
 RUN npm run build
 
 # ── Stage 2: runner ───────────────────────────────────────────────────────────

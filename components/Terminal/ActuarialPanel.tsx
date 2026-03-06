@@ -37,7 +37,7 @@ export default function ActuarialPanel({ rows }: { rows: ActuarialRow[] }) {
         <span style={{ fontSize: 9, color: 'var(--text-dim)' }}>expected loss by cohort</span>
       </div>
 
-      <div className="panel-body" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+      <div className="panel-body" style={{ display: 'flex', flexDirection: 'column', minHeight: 0, gap: 0 }}>
         {/* Table */}
         <div style={{ fontSize: 9, marginBottom: 4 }}>
           {/* Header */}

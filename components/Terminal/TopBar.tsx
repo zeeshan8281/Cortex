@@ -7,10 +7,11 @@ function fmt(n: number, decimals = 0) {
   return n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
 }
 
-export default function TopBar({ data, dataStatus, onStatusClick }: {
+export default function TopBar({ data, dataStatus, onStatusClick, onBlobClick }: {
   data: TopBarData
   dataStatus?: TopBarStatus
   onStatusClick?: () => void
+  onBlobClick?: () => void
 }) {
   const teeColor = data.teeStatus === 'LIVE' ? 'var(--green)' : data.teeStatus === 'DEGRADED' ? 'var(--amber)' : 'var(--red)'
   const aGDPUp = data.aGDPChange >= 0
@@ -39,12 +40,10 @@ export default function TopBar({ data, dataStatus, onStatusClick }: {
         <span style={{ color: teeColor, fontSize: 10 }}>TEE:{data.teeStatus}</span>
       </span>
 
-      {/* EigenDA blob chip */}
+      {/* EigenDA blob chip — click to inspect retrieved blob data */}
       {data.blobRef && (
-        <a
-          href={`https://blobs.eigenda.xyz/blobs/${data.blobRef}`}
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          onClick={onBlobClick}
           style={{
             marginRight: 16,
             fontSize: 9,
@@ -53,13 +52,15 @@ export default function TopBar({ data, dataStatus, onStatusClick }: {
             padding: '1px 6px',
             background: 'rgba(138,43,226,0.15)',
             color: '#b06fef',
-            textDecoration: 'none',
+            border: 'none',
+            cursor: 'pointer',
             flexShrink: 0,
+            fontFamily: 'inherit',
           }}
-          title={`EigenDA blob: ${data.blobRef}`}
+          title={`Click to inspect EigenDA blob: ${data.blobRef}`}
         >
           DA:{data.blobRef.replace(/^mock:/, '').slice(0, 8)}
-        </a>
+        </button>
       )}
 
       <span style={{ color: 'var(--border-bright)', marginRight: 16 }}>│</span>

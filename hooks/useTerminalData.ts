@@ -8,7 +8,7 @@ import {
   mockAttestations, mockTokens, mockNetwork, mockActuarial,
   mockAAI50History,
 } from '@/lib/mock'
-import type { TopBarData, AAI50Entry, ARSAgent, X402Flow, DeFAIProtocol, Attestation, TokenWatch, NetworkHealth, AAI50DataPoint } from '@/types'
+import type { TopBarData, AAI50Entry, ARSAgent, X402Flow, DeFAIProtocol, Attestation, TokenWatch, NetworkHealth, AAI50DataPoint, MortalityData, TuringSpread, ActuarialRow } from '@/types'
 import type { NewsItem } from '@/lib/sources/rss'
 
 interface PricesResponse {
@@ -45,7 +45,10 @@ export function useTerminalData() {
   const tokens  = usePolling<TokenWatch[]>('/api/tokens',              30_000, mockTokens)
   const network   = usePolling<NetworkHealth | null>('/api/network',         20_000, null)
   const history   = usePolling<AAI50DataPoint[]>('/api/history',             600_000, mockAAI50History)
-  const snapshot  = usePolling<SnapshotResponse | null>('/api/snapshot',     300_000, null)
+  const snapshot  = usePolling<SnapshotResponse | null>('/api/snapshot',      30_000, null)
+  const mortality = usePolling<MortalityData>('/api/mortality',              120_000, mockMortality)
+  const turing    = usePolling<TuringSpread[]>('/api/turing',                120_000, mockTuringSpread)
+  const actuarial = usePolling<ActuarialRow[]>('/api/actuarial',             300_000, mockActuarial)
   const sseAtts   = useAttestationStream(8)
 
   const teeStatus = useMemo<TopBarData['teeStatus']>(() => {
@@ -79,12 +82,12 @@ export function useTerminalData() {
     x402Largest: x402.data?.largest ?? 2300,
     yields:      yields.data,
     attestations,
-    mortality:   mockMortality,
+    mortality:   mortality.data,
     consensus:   mockConsensus,
-    turingSpread:mockTuringSpread,
+    turingSpread:turing.data,
     tokens:          tokens.data,
     network:         network.data ?? mockNetwork,
-    actuarial:       mockActuarial,
+    actuarial:       actuarial.data,
     aai50History:    history.data,
     news:            news.data,
   }

@@ -16,8 +16,11 @@ export async function disperseBlob(payload: object): Promise<string | null> {
       signal: AbortSignal.timeout(30_000),   // dispersal can take up to 30s on Holesky
     })
     if (!res.ok) return null
-    const commitment = (await res.text()).trim()
-    return commitment.length > 0 ? commitment : null
+    // Proxy returns raw binary commitment bytes — hex-encode for display/linking
+    const buf = await res.arrayBuffer()
+    if (buf.byteLength === 0) return null
+    const hex = '0x' + Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
+    return hex
   } catch {
     return null
   }
@@ -25,7 +28,8 @@ export async function disperseBlob(payload: object): Promise<string | null> {
 
 export async function retrieveBlob(commitment: string): Promise<object | null> {
   try {
-    const res = await fetch(`${PROXY}/get/${commitment}`, {
+    // commitment is stored as hex (0x...) — pass it directly; proxy accepts hex-encoded commitment
+    const res = await fetch(`${PROXY}/get/${encodeURIComponent(commitment)}`, {
       signal: AbortSignal.timeout(10_000),
     })
     if (!res.ok) return null

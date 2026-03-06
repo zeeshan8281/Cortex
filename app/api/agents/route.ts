@@ -36,6 +36,14 @@ export async function GET() {
     const indexValue  = aai50.reduce((s, e) => s + e.score, 0) / Math.max(1, aai50.length)
     const indexChange = aai50.reduce((s, e) => s + e.change, 0) / Math.max(1, aai50.length)
 
+    // Pad to 50 with mock entries if live data is short (Virtuals API caps at ~21 unique)
+    const liveCount = aai50.length
+    for (let i = liveCount; i < 50; i++) {
+      const mock = mockAAI50[i]
+      if (!mock) break
+      aai50.push({ ...mock, rank: i + 1 })
+    }
+
     const data = {
       aai50,
       topBar: {

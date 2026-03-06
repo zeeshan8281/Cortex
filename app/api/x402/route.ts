@@ -4,10 +4,12 @@ import type { X402Flow } from '@/types'
 
 export const dynamic = 'force-dynamic'
 
+let cache: { data: object; at: number } | null = null
+const CACHE_MS = 60_000
+
 export async function GET() {
-  if (!process.env.VIRTUALS_API_KEY) {
-    const total = mockX402.reduce((s, f) => s + f.amount, 0)
-    return Response.json({ flows: mockX402, total, trend7d: 34, largest: 2300 })
+  if (cache && Date.now() - cache.at < CACHE_MS) {
+    return Response.json(cache.data)
   }
 
   try {
@@ -40,7 +42,9 @@ export async function GET() {
 
     const largest = Math.max(...raw.map(f => f.amount))
 
-    return Response.json({ flows, total, trend7d: 0, largest })
+    const data = { flows, total, trend7d: 0, largest }
+    cache = { data, at: Date.now() }
+    return Response.json(data)
   } catch (err) {
     console.warn('[x402] falling back to mock:', err instanceof Error ? err.message : err)
     const total = mockX402.reduce((s, f) => s + f.amount, 0)

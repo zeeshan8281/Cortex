@@ -18,9 +18,9 @@ export async function register() {
     }
   }
 
-  // Small delay on first run so the Next.js server is fully ready
+  // 1s delay so Next.js server is fully ready, then post immediately
   setTimeout(() => {
     postSnapshot()
-    setInterval(postSnapshot, 5 * 60_000)
-  }, 5_000)
+    setInterval(postSnapshot, 60 * 60_000) // every 1 hour
+  }, 1_000)
 }

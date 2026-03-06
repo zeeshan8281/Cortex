@@ -16,6 +16,7 @@ import AttestationPanel from './AttestationPanel'
 import CommandBar from './CommandBar'
 import NewsPanel from './NewsPanel'
 import StatusOverlay, { useDataStatus } from './StatusOverlay'
+import BlobModal from './BlobModal'
 
 // Panel IDs mapped to keyboard keys
 const PANEL_KEYS: Record<string, number> = {
@@ -49,6 +50,7 @@ export default function AppShell() {
   const data = useTerminalData()
   const { status, loading: statusLoading, refresh: refreshStatus } = useDataStatus()
   const [showStatus, setShowStatus] = useState(false)
+  const [showBlob, setShowBlob] = useState(false)
   const [focusedPanel, setFocusedPanel] = useState(0)
 
   const handleKey = useCallback((e: KeyboardEvent) => {
@@ -60,6 +62,7 @@ export default function AppShell() {
 
     if (e.key === 'Escape') {
       setShowStatus(false)
+      setShowBlob(false)
       setFocusedPanel(0)
       return
     }
@@ -96,6 +99,7 @@ export default function AppShell() {
           data={data.topBar}
           dataStatus={status ? { live: status.summary.live, total: status.summary.total } : undefined}
           onStatusClick={() => setShowStatus(true)}
+          onBlobClick={() => setShowBlob(true)}
         />
       </div>
 
@@ -151,6 +155,13 @@ export default function AppShell() {
           loading={statusLoading}
           onClose={() => setShowStatus(false)}
           onRefresh={refreshStatus}
+        />
+      )}
+
+      {showBlob && data.topBar.blobRef && (
+        <BlobModal
+          commitment={data.topBar.blobRef}
+          onClose={() => setShowBlob(false)}
         />
       )}
     </div>

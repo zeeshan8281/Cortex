@@ -56,19 +56,34 @@ function detectFramework(agent: Record<string, unknown>): string {
 }
 
 export async function fetchTopAgents(limit = 50): Promise<CookieAgentsResponse> {
-  const [agentsRes, virtualPrice] = await Promise.all([
-    fetch(
-      `${VIRTUALS_BASE}/api/virtuals?sort[0]=mindshare:desc&pageSize=${limit}&page=1`,
-      { cache: 'no-store', signal: AbortSignal.timeout(8000) }
+  // Virtuals API pagination is broken — all pages return the same top-10 results.
+  // We fetch by different sort keys to get diverse agent data (top by mindshare,
+  // top by volume, top by mcap) and deduplicate by id.
+  const sorts = ['mindshare%3Adesc', 'volume24h%3Adesc', 'mcapInVirtual%3Adesc']
+  const pagesNeeded = Math.ceil(limit / 10)
+
+  const [pageResults, virtualPrice] = await Promise.all([
+    Promise.all(
+      sorts.slice(0, pagesNeeded).map(sort =>
+        fetch(
+          `${VIRTUALS_BASE}/api/virtuals?sort%5B0%5D=${sort}&pageSize=10&page=1`,
+          { cache: 'no-store', signal: AbortSignal.timeout(10000) }
+        ).then(r => { if (!r.ok) throw new Error(`Virtuals API ${r.status}`); return r.json() })
+      )
     ),
     getVirtualUsdPrice(),
   ])
 
-  if (!agentsRes.ok) throw new Error(`Virtuals API ${agentsRes.status}`)
-  const json = await agentsRes.json()
-
-  const items: Record<string, unknown>[] = json?.data ?? []
-  const total: number = json?.meta?.pagination?.total ?? items.length
+  // Deduplicate by id, preserving order (mindshare sort first = highest priority)
+  const seen = new Set<string>()
+  const items: Record<string, unknown>[] = []
+  for (const page of pageResults) {
+    for (const agent of (page?.data ?? [])) {
+      const id = String((agent as Record<string,unknown>).id ?? (agent as Record<string,unknown>).uid ?? '')
+      if (!seen.has(id)) { seen.add(id); items.push(agent as Record<string, unknown>) }
+    }
+  }
+  const total: number = pageResults[0]?.meta?.pagination?.total ?? items.length
 
   const agents: CookieAgent[] = items.map(a => {
     const mcapInVirtual = Number(a.mcapInVirtual ?? 0)

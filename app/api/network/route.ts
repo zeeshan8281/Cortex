@@ -3,9 +3,9 @@ import { mockNetwork } from '@/lib/mock'
 import type { NetworkHealth, ChainHealth } from '@/types'
 
 const CHAINS = [
-  { chain: 'ETH',  rpc: 'https://eth.llamarpc.com' },
-  { chain: 'BASE', rpc: 'https://mainnet.base.org'  },
-  { chain: 'ARB',  rpc: 'https://arb1.llamarpc.com' },
+  { chain: 'ETH',  rpc: 'https://ethereum.publicnode.com' },
+  { chain: 'BASE', rpc: 'https://mainnet.base.org'        },
+  { chain: 'ARB',  rpc: 'https://arbitrum.publicnode.com'  },
 ]
 
 async function fetchGas(chain: string, rpc: string): Promise<ChainHealth> {

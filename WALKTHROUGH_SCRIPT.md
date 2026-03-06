@@ -1,167 +1,209 @@
 # CORTEX — Video Walkthrough Script
-**Target length:** ~4:45 | **Style:** Technical, fast-paced, terminal aesthetic
+**Target length:** ~5:10 | **Style:** Technical, fast-paced, terminal aesthetic
 
 ---
 
 ## [0:00 – 0:20] COLD OPEN
 
-**[SCREEN]** Terminal boots from black. CORTEX loads at `localhost:3000`. All panels populate.
+**[SCREEN]** Terminal boots from black. CORTEX loads at `localhost:3000`. All panels populate with live data.
 
 **[VOICE]**
 > "This is CORTEX — a Bloomberg Terminal for the AI agent economy.
-> Built with Next.js 15, TypeScript, zero UI libraries, zero paid API keys.
-> Everything you see is real live data. Let me show you how it works."
+> Next.js 15, TypeScript, zero UI libraries, one API key.
+> Every number you see is pulled live. Let me show you how it works."
 
 ---
 
-## [0:20 – 1:10] UI OVERVIEW — THE LAYOUT
+## [0:20 – 1:15] UI OVERVIEW — THE LAYOUT
 
-**[SCREEN]** Zoom out to show full terminal. Slowly pan across each panel.
+**[SCREEN]** Zoom out to show the full terminal. Pan slowly left to right, top to bottom.
 
 **[VOICE]**
-> "The layout is a CSS Grid — two rows of five panels each, with a persistent news
-> column on the right spanning both rows."
+> "Six-row CSS Grid. Top bar, 16-pixel network strip, two content rows of five panels each,
+> a news column spanning both content rows on the right, and a command bar at the bottom."
 
-**[SCREEN]** Hover over top bar — show ETH price, aGDP, agent count, AAI-50 ticking.
+**[SCREEN]** Hover over top bar — ETH price ticking, aGDP number, agent count, purple DA chip.
 
-> "The top bar gives you the macro pulse: ETH price from Binance's public API,
-> aGDP — the aggregate market cap of all Virtuals Protocol agents — updated live,
-> and the AAI-50 index, which tracks the top 50 AI agents like an equity index."
+> "Top bar: ETH spot from Binance, aGDP — the aggregate market cap of every Virtuals
+> Protocol agent summed in real time — and a purple chip showing the latest EigenDA blob
+> commitment. Click it, you land on EigenExplorer with the raw blob."
 
-**[SCREEN]** Point to network health bar (the thin 16px strip below the top bar).
+**[SCREEN]** Point to the 16px network health strip.
 
-> "Below that — a 16-pixel network health strip. Three RPCs polled every 20 seconds:
-> Ethereum mainnet, Base, Arbitrum. Green, amber, red based on gas price thresholds."
+> "Network strip — three public RPC calls every 20 seconds:
+> Ethereum mainnet via publicnode.com, Base via mainnet.base.org,
+> Arbitrum via arbitrum.publicnode.com. Green is under threshold, amber is congested, red is down."
 
-**[SCREEN]** Quickly swipe through the 10 panels. Pause on: AAI-50 chart, ARS scores, Attestation stream.
+**[SCREEN]** Highlight top row left to right: AAI-50 → Mortality → ARS → Consensus → Token Watchlist.
 
-> "Ten panels across two rows. The AAI-50 has a real 30-day price chart.
-> ARS — Agent Reliability Score — is a rule-based 0-to-1000 composite score.
-> And the bottom-right panel is a live SSE stream of on-chain attestations."
+> "Top row left to right: AAI-50 index with a 30-day price chart —
+> Agent Mortality tracking churn and zombies across the ecosystem —
+> ARS reliability scores for the top ten agents —
+> Consensus layer showing agent price predictions —
+> and a live token watchlist: VIRTUAL, OLAS, TAO, AIXBT, COOKIE from DeFiLlama."
+
+**[SCREEN]** Highlight bottom row: Turing Spread → Actuarial → x402 → DeFAI → Attestation stream.
+
+> "Bottom row: Turing Spread comparing each agent's actual performance against its
+> base model baseline — Actuarial loss rates grouped by framework and age —
+> x402 payment flows from real agent volume data —
+> DeFAI protocol APYs from DeFiLlama —
+> and a live SSE stream of on-chain attestations."
 
 ---
 
-## [1:10 – 2:00] DATA SOURCES — ALL FREE
+## [1:15 – 2:00] DATA SOURCES
 
-**[SCREEN]** Open browser tab to `localhost:3000/api/status`. Show the JSON response.
+**[SCREEN]** Open `localhost:3000/api/status`. Show the JSON. Scroll through `sources` array.
 
 **[VOICE]**
-> "Every data source in CORTEX is a free public API. Hit `/api/status` and you see
-> a live health check across all seven sources."
+> "Hit `/api/status` — a health check across all eight data sources. Latency, mode, sample value.
+> Seven of them are completely free, no key required."
 
-**[SCREEN]** Scroll through the `sources` array, highlight each `"mode": "LIVE"`.
+**[SCREEN]** Scroll past each `"mode": "LIVE"` entry.
 
-> "Virtuals Protocol — public REST API, no key, gives us 1,400-plus agents with
-> mindshare, market cap, and volume.
+> "Virtuals Protocol — public REST API, 20,000-plus G.A.M.E. agents, no key.
+> This is the backbone: AAI-50, ARS, aGDP, Mortality, Turing Spread, Actuarial, and x402
+> are all derived from this one source.
 
-> DeFiLlama — two endpoints. The yields API for DeFAI protocol APYs, and the coins
-> API for token prices and market caps. No key, no rate limits.
+> DeFiLlama — two endpoints. The yields API for DeFAI APYs, the coins API for
+> token prices and 30-day VIRTUAL price history. No key, no rate limits.
 
-> Binance public ticker for ETH and TAO prices.
+> Binance public ticker for ETH and TAO spot prices.
 
 > Olas on TheGraph — a public GraphQL subgraph for PoAA checkpoint attestations.
 
 > CoinTelegraph RSS for the news feed.
 
-> And OpenRouter for the LLM command bar — that's the only key in the whole project."
+> Three public RPCs — publicnode and base.org — for the network health strip.
+
+> EigenDA proxy on port 3100 for state snapshots.
+
+> And OpenRouter — the only key in the project. That's the command bar LLM."
 
 ---
 
-## [2:00 – 3:00] CODE ARCHITECTURE
+## [2:00 – 3:10] CODE ARCHITECTURE
 
-**[SCREEN]** Open VS Code (or file tree). Show `/app/api/` directory. Expand it.
+**[SCREEN]** Open `/app/api/` in the file tree — show 15 routes.
 
 **[VOICE]**
-> "The codebase follows Next.js App Router conventions. Fifteen API routes, all
-> server-side. Each one fetches from a free source, applies a server-side cache,
-> and falls back to mock data on error — so the terminal never shows a broken panel."
+> "Fifteen API routes, all server-side. Every one of them follows the same pattern:
+> server-side in-memory cache, fetch from the free source, fall back to mock on error.
+> The UI never sees a broken panel."
 
-**[SCREEN]** Open `app/api/agdp/route.ts`. Highlight the cache block and the fallback.
+**[SCREEN]** Open `app/api/agdp/route.ts`. Highlight the cache block and fallback.
 
-> "Here's the aGDP route. Server-side in-memory cache — 60 seconds. If the Virtuals
-> fetch fails or returns zero, it throws and we return mock. Clean, no drama."
+> "aGDP route. 60-second cache. Virtuals returns zero or throws — fall back to mock.
+> The cache key is just a module-level variable. No Redis, no database."
 
 **[SCREEN]** Open `lib/sources/virtuals.ts`. Show `fetchStats()`.
 
-> "The aGDP calculation: fetch top 200 agents across two pages, sum their
-> `mcapInVirtual` field, multiply by the live VIRTUAL/USD price from DeFiLlama.
-> That's the ecosystem's aggregate GDP."
+> "aGDP: fetch top 200 agents by mcap sorted descending, sum `mcapInVirtual`,
+> multiply by the live VIRTUAL/USD price from DeFiLlama. That's the ecosystem GDP."
 
-**[SCREEN]** Open `lib/ars.ts`. Show `computeARS()` function and the weighted inputs.
+**[SCREEN]** Open `lib/ars.ts`. Show the `WEIGHTS` object.
 
-> "ARS scoring is deterministic — no ML. Six weighted inputs: framework maturity,
-> audit status, agent age, developer wallet age, x402 reliability, and mindshare
-> momentum. Each scored 0 to 1, multiplied by weights, summed to 1000."
+> "ARS — Agent Reliability Score. Eight weighted inputs, fully deterministic, no ML.
+> Framework maturity, incident count, on-chain behavior, capital, developer wallet age,
+> x402 reliability, PoAA attestation score, and agent age.
+> Each scores 0 to 100, weighted, summed to 1000."
 
-**[SCREEN]** Open `app/api/attestations/stream/route.ts`. Show the ReadableStream block.
+**[SCREEN]** Open `app/api/mortality/route.ts`. Show the two fetches: mindshare:desc + mindshare:asc.
 
-> "The attestation stream is Server-Sent Events — a `ReadableStream` pushed over
-> HTTP. On connect, it flushes real Olas PoAA checkpoints from the TheGraph
-> subgraph, then generates synthetic events every 3 to 6 seconds to simulate
-> live network activity. The client never polls — it just listens."
+> "Mortality pulls two samples from Virtuals in parallel — top agents by mindshare
+> and bottom agents by mindshare. Bottom agents with near-zero volume and activity
+> are the dead ones. We count them, bucket by cause, scale to the 20,000-agent ecosystem.
+> Real churn from real data."
+
+**[SCREEN]** Open `app/api/snapshot/route.ts`. Show the EigenDA write.
+
+> "Every five minutes — server startup via `instrumentation.ts` — we serialize
+> the current agent state, ARS scores, and aGDP to JSON and POST it to the EigenDA proxy.
+> The blob commitment comes back and lands in the top bar.
+> Tamper-evident, on-chain, verifiable — no signed transaction required."
 
 ---
 
-## [3:00 – 3:45] SVG CHARTS & UI DETAILS
+## [3:10 – 3:55] CHARTS & UI DETAILS
 
 **[SCREEN]** Click into the AAI-50 panel. Toggle 7D / 30D.
 
 **[VOICE]**
-> "The charts are hand-rolled SVG — no chart library. Catmull-Rom spline for smooth
-> curves, a filled area path, hover crosshair with a flipping tooltip.
-> The 30-day history comes from DeFiLlama's chart endpoint for the VIRTUAL token,
-> normalized to an index scale."
+> "Charts are hand-rolled SVG — no chart library at all.
+> Catmull-Rom spline for the smooth curve, filled area path below it,
+> hover crosshair with a live tooltip.
+> The 30-day data is VIRTUAL token price history from DeFiLlama, normalized to an index scale."
 
-**[SCREEN]** Hover slowly across the chart. Show the tooltip flip near the right edge.
+**[SCREEN]** Hover slowly across the chart. Show tooltip flip near the right edge.
 
-> "The tooltip auto-flips when within 60 pixels of the right edge — small detail,
-> but it's the kind of thing that makes a terminal feel polished."
+> "Tooltip auto-flips at 60 pixels from the right edge. Small thing —
+> but Bloomberg traders notice when it clips off screen."
 
-**[SCREEN]** Point to Turing Spread panel — show the diverging bars.
+**[SCREEN]** Point to Turing Spread panel — show diverging green and red bars.
 
-> "Turing Spread uses a pure CSS diverging bar layout. No SVG, no canvas.
-> Green bars extend right for agents outperforming their base model.
-> Red bars extend left for underperformers. Width is proportional to spread magnitude."
+> "Turing Spread is pure CSS. No SVG, no canvas.
+> Green bars extend right — agent outperforming its base model.
+> Red extend left — underperforming. Width is proportional to spread magnitude.
+> The baseline per framework is fixed: G.A.M.E. agents are compared against GPT-4o-mini,
+> Olas agents against Gemini Pro. All derived from Virtuals agentScore in real time."
 
-**[SCREEN]** Press keys `1`, `3`, `8` — show cyan focus outlines jumping between panels.
+**[SCREEN]** Press `1`, `3`, `8` — cyan outlines jump between panels.
 
-> "Keyboard shortcuts. `1` through `0` focus each panel with a cyan outline.
-> `S` opens the status overlay. `/` drops you into the command bar.
-> Bloomberg-terminal muscle memory."
-
----
-
-## [3:45 – 4:30] COMMAND BAR DEMO
-
-**[SCREEN]** Press `/`. Command bar input activates.
-
-**[VOICE]**
-> "The command bar takes natural language queries. Backed by Claude Haiku via
-> OpenRouter — fast, cheap, context-aware."
-
-**[SCREEN]** Type: `Show agents with ARS above 800` → hit Enter. Wait for response.
-
-> "It knows the data model — ARS scores, frameworks, aGDP, x402 flows, mortality rates."
-
-**[SCREEN]** Response card appears with terminal-formatted output. Show the model name at bottom.
-
-> "Response comes back formatted for a monospace terminal. Model, token count,
-> all in the footer. Tab autocompletes from a preset suggestion list,
-> arrow keys scroll history."
-
-**[SCREEN]** Press `Esc` — card dismisses. Command bar clears.
+> "Keys 1 through 0 focus each panel with a cyan outline.
+> S opens the live status overlay. Slash drops into the command bar.
+> N focuses the news column. No mouse needed."
 
 ---
 
-## [4:30 – 4:45] CLOSE
+## [3:55 – 4:45] COMMAND BAR DEMO
 
-**[SCREEN]** Zoom out to full terminal view. Let it sit for 3 seconds — data ticking.
+**[SCREEN]** Press `/`. Command bar activates.
 
 **[VOICE]**
-> "CORTEX. Next.js 15, TypeScript, zero paid data keys, zero UI libraries.
-> All real data. All open."
+> "Natural language query layer. Claude Haiku via OpenRouter —
+> fast enough to feel instant, cheap enough to leave running."
 
-**[SCREEN]** Fade to black. Optional: show GitHub URL or domain.
+**[SCREEN]** Type: `Which agents have the highest Turing spread right now?` → Enter. Wait.
+
+> "The system prompt is seeded with the live terminal state —
+> current ARS scores, top agents, aGDP, framework distribution.
+> The model knows what's on screen."
+
+**[SCREEN]** Response card appears. Point to model name + token count in footer.
+
+> "Response formatted for monospace. Model and token count in the footer.
+> Tab autocompletes from suggestions. Arrow keys scroll query history."
+
+**[SCREEN]** Press Esc — card dismisses cleanly.
+
+---
+
+## [4:45 – 5:00] EIGENCOMPUTE DEPLOYMENT
+
+**[SCREEN]** Show `Dockerfile` — highlight `linux/amd64`, `standalone`, `USER root`.
+
+**[VOICE]**
+> "Ships as a multi-stage linux/amd64 image — the architecture EigenCompute TEE nodes run on.
+> Next.js standalone output means no node_modules at runtime.
+> Push the image, run `ecloud compute app upgrade`, and you're live inside a verified enclave."
+
+**[SCREEN]** Show the purple DA chip in TopBar. Click it — EigenExplorer opens.
+
+> "Every deploy is pinned to an immutable tag — v0.1.0, v0.2.0.
+> Every state snapshot is anchored to EigenDA.
+> The terminal proves its own data."
+
+---
+
+## [5:00 – 5:10] CLOSE
+
+**[SCREEN]** Zoom out to full terminal. Hold 3 seconds — numbers ticking live.
+
+**[VOICE]**
+> "CORTEX. One API key. Zero UI libraries. All real data."
+
+**[SCREEN]** Fade to black.
 
 ---
 
@@ -169,31 +211,68 @@
 
 | Segment | Duration | Screen action |
 |---|---|---|
-| Cold open | 0:20 | Terminal boot animation |
-| UI overview | 0:50 | Full-screen pan, panel highlights |
-| Data sources | 0:50 | `/api/status` JSON in browser |
-| Code architecture | 1:00 | VS Code: 4 files, highlight key lines |
-| Charts & UI details | 0:45 | AAI-50 hover, Turing bars, keyboard |
-| Command bar demo | 0:45 | Live query + response |
-| Close | 0:15 | Full terminal, fade |
-| **Total** | **4:45** | |
+| Cold open | 0:20 | Terminal boot, all panels populate |
+| UI overview | 0:55 | Pan top-bar → network strip → top row → bottom row |
+| Data sources | 0:45 | `/api/status` in browser, scroll sources array |
+| Code architecture | 1:10 | 5 files: agdp · virtuals · ars · mortality · snapshot |
+| Charts & UI details | 0:45 | AAI-50 hover + flip, Turing bars, keyboard nav |
+| Command bar demo | 0:50 | Live query, response card, Esc dismiss |
+| EigenCompute | 0:15 | Dockerfile + DA chip → EigenExplorer |
+| Close | 0:10 | Full terminal hold, fade |
+| **Total** | **5:10** | |
 
 ### Key files to have open/ready
 ```
-app/api/agdp/route.ts         ← caching + fallback pattern
-lib/sources/virtuals.ts       ← aGDP calculation
-lib/ars.ts                    ← ARS scoring algorithm
-app/api/attestations/stream/  ← SSE stream
-components/Terminal/LineChart.tsx  ← SVG chart
-hooks/useTerminalData.ts      ← data orchestration
+app/api/agdp/route.ts              ← cache + fallback pattern (the template)
+lib/sources/virtuals.ts            ← aGDP, x402 flows, attestations
+lib/ars.ts                         ← 8 weighted inputs, deterministic scoring
+app/api/mortality/route.ts         ← top+bottom agent samples → real churn
+app/api/snapshot/route.ts          ← EigenDA write path
+instrumentation.ts                 ← 5-min snapshot loop on server startup
+components/Terminal/LineChart.tsx  ← hand-rolled SVG, Catmull-Rom spline
+hooks/useTerminalData.ts           ← polling + SSE → single data object
 ```
 
-### Terminal font / zoom
-- Font: JetBrains Mono — make sure it's rendering sharp in the recording
-- Browser zoom: 80% to show full terminal without scrolling
-- Resolution: 1920×1080 minimum; record at 2× for retina if possible
+### Live vs simulated at recording time
+| Panel | Source | Status |
+|---|---|---|
+| TopBar (ETH, aGDP, AAI-50, DA chip) | Binance + Virtuals + DeFiLlama + EigenDA | **LIVE** |
+| NetworkHealthBar (ETH/BASE/ARB) | publicnode.com + base.org | **LIVE** |
+| AAI-50 chart + leaderboard | Virtuals (top 10 by mindshare) | **LIVE** |
+| ARS Panel | Virtuals via computeARS() | **LIVE** |
+| Token Watchlist | DeFiLlama coins API | **LIVE** |
+| DeFAI Yields | DeFiLlama yields API | **LIVE** |
+| Mortality | Virtuals (top + bottom by mindshare) | **LIVE** |
+| Turing Spread | Virtuals agentScore vs framework baselines | **LIVE** |
+| Actuarial | Virtuals (3 sort keys → age buckets) | **LIVE** |
+| x402 Flows | Virtuals volume24h:desc | **LIVE** |
+| Attestation stream | Virtuals activity (+ Olas when subgraph returns data) | **LIVE** |
+| News | CoinTelegraph RSS | **LIVE** |
+| Consensus | — | simulated (no public source for agent price predictions) |
+
+### Data sources at a glance
+| Source | Key | Used for |
+|---|---|---|
+| Virtuals Protocol (api.virtuals.io) | None | AAI-50, ARS, aGDP, Mortality, Turing, Actuarial, x402, Attestations |
+| DeFiLlama yields.llama.fi | None | DeFAI APYs |
+| DeFiLlama coins.llama.fi | None | Token watchlist, VIRTUAL price, 30d history |
+| Binance api.binance.com | None | ETH + TAO spot prices |
+| Olas / TheGraph | None | PoAA attestations |
+| CoinTelegraph RSS | None | News feed |
+| ethereum.publicnode.com + base.org + arbitrum.publicnode.com | None | Gas prices (network strip) |
+| EigenDA proxy :3100 | None (local) | State snapshot blobs |
+| OpenRouter openrouter.ai | **OPENROUTER_API_KEY** | Command bar (Claude Haiku) |
+
+### Terminal recording setup
+- Font: JetBrains Mono — confirm it's rendering sharp before hitting record
+- Browser zoom: 80% to fit full terminal without scroll
+- Resolution: 1920×1080 minimum, record at 2× for retina
+- Have `/api/status` in a second tab ready to flip to for the data sources segment
 
 ### Tone
-Dense and fast. Assume the viewer knows React and APIs. Skip the basics,
-go straight to the interesting decisions: why no chart library, why SSE over
-WebSocket, why rule-based ARS over ML, why no paid APIs.
+Dense and fast. Viewer knows React and APIs.
+Lead with the interesting decisions, not the obvious ones:
+why Virtuals API is the backbone of seven different panels,
+why the pagination is broken so we use three sort keys instead,
+why SSE over WebSocket, why deterministic ARS over ML,
+why EigenDA instead of a database, why one key for the whole project.

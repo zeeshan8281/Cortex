@@ -78,7 +78,7 @@ export default function AAI50Panel({
       <hr className="divider" style={{ margin: '0 6px 2px', flexShrink: 0 }} />
 
       {/* Agent list */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 8px 4px' }}>
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '0 8px 4px' }}>
         <div style={{
           fontSize: 8,
           color: 'var(--text-dim)',
