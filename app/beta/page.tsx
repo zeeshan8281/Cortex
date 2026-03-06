@@ -1,6 +1,5 @@
 'use client'
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
 
 type Status = 'idle' | 'loading' | 'success' | 'error'
 
@@ -16,17 +15,16 @@ export default function BetaPage() {
     setStatus('loading')
     setErrMsg('')
 
-    const { error } = await supabase
-      .from('beta_signups')
-      .insert([{
-        name:     name.trim(),
-        email:    email.trim().toLowerCase(),
-        telegram: telegram.trim().replace(/^@/, ''),
-      }])
+    const res = await fetch('/api/beta', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, telegram }),
+    })
+    const data = await res.json()
 
-    if (error) {
+    if (!res.ok) {
       setStatus('error')
-      setErrMsg(error.code === '23505' ? 'already registered' : error.message)
+      setErrMsg(data.error ?? 'unknown error')
     } else {
       setStatus('success')
     }
